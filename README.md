@@ -15,3 +15,16 @@ Models
 * `model1`: RNN
 * `model2`: LSTM
 * `model3`: GRU
+
+### Unit Test
+
+* for module
+
+```shell
+# module1:  RNNCell
+PYTHONPATH=. python modules/module1.py
+# module2: LSTMCell
+PYTHONPATH=. python modules/module2.py
+# module3:  GRUCell
+PYTHONPATH=. python modules/module3.py
+```
