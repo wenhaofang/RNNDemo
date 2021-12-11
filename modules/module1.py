@@ -36,7 +36,7 @@ class RNNCell():
 
         H = torch.tanh(torch.matmul(X, self.W_xh) + torch.matmul(H, self.W_hh) + self.b_h)
 
-        return (H,)
+        return H
 
 if __name__ == '__main__':
     emb_dim = 256
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     H = torch.zeros(batch_size, hid_dim)
 
     Y = module(X)
-    print(Y[0].shape) # (batch_size, hid_dim)
+    print(Y.shape) # (batch_size, hid_dim)
 
     Y = module(X, H)
-    print(Y[0].shape) # (batch_size, hid_dim)
+    print(Y.shape) # (batch_size, hid_dim)

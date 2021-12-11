@@ -39,20 +39,26 @@ class LSTMCell():
             (max_value - min_value) * torch.rand(size) + min_value, requires_grad = True
         )
 
-    def __call__(self, X, H = None, C = None):
+    def __call__(self, X, T = None):
         '''
         Params:
             X: Torch LongTensor (batch_size, emb_dim)
-            H: Torch LongTensor (batch_size, hid_dim)
-            C: Torch LongTensor (batch_size, hid_dim)
+            T: Tuple (
+                H: Torch LongTensor (batch_size, hid_dim),
+                C: Torch LongTensor (batch_size, hid_dim)
+            )
         Return:
-            H: Torch LongTensor (batch_size, hid_dim)
-            C: Torch LongTensor (batch_size, hid_dim)
+            T: Tuple (
+                H: Torch LongTensor (batch_size, hid_dim),
+                C: Torch LongTensor (batch_size, hid_dim)
+            )
         '''
-        if H is None:
+        if T is None:
             H = torch.zeros(X.shape[0], self.hidden_size, device = X.device)
-        if C is None:
             C = torch.zeros(X.shape[0], self.hidden_size, device = X.device)
+        else:
+            H = T[0]
+            C = T[1]
 
         I = torch.sigmoid(torch.matmul(X, self.W_xi) + torch.matmul(H, self.W_hi) + self.b_i)
         F = torch.sigmoid(torch.matmul(X, self.W_xf) + torch.matmul(H, self.W_hf) + self.b_f)
@@ -78,6 +84,6 @@ if __name__ == '__main__':
     print(Y[0].shape) # (batch_size, hid_dim)
     print(Y[1].shape) # (batch_size, hid_dim)
 
-    Y = module(X, H, C)
+    Y = module(X, (H, C))
     print(Y[0].shape) # (batch_size, hid_dim)
     print(Y[1].shape) # (batch_size, hid_dim)

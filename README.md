@@ -27,4 +27,7 @@ PYTHONPATH=. python modules/module1.py
 PYTHONPATH=. python modules/module2.py
 # module3:  GRUCell
 PYTHONPATH=. python modules/module3.py
+
+# LanguageModel
+PYTHONPATH=. python modules/LanguageModel.py
 ```

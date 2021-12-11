@@ -50,7 +50,7 @@ class GRUCell():
         H_tilda = torch.tanh(torch.matmul(X, self.W_xh) + torch.matmul(R * H, self.W_hh) + self.b_h)
         H = Z * H + (1 - Z) * H_tilda
 
-        return (H,)
+        return H
 
 if __name__ == '__main__':
     emb_dim = 256
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     H = torch.zeros(batch_size, hid_dim)
 
     Y = module(X)
-    print(Y[0].shape) # (batch_size, hid_dim)
+    print(Y.shape) # (batch_size, hid_dim)
 
     Y = module(X, H)
-    print(Y[0].shape) # (batch_size, hid_dim)
+    print(Y.shape) # (batch_size, hid_dim)
