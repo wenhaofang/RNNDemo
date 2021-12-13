@@ -19,6 +19,13 @@ Models
 
 ### Unit Test
 
+* for loader
+
+```shell
+# loader0: JayChou Lyrics
+PYTHONPATH=. python loaders/loader0.py
+```
+
 * for module
 
 ```shell
