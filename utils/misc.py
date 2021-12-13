@@ -38,17 +38,6 @@ def save_sample(folder, file_prefix, true_ids, pred_ids, true_wds, pred_wds):
                 txt_file.write(word)
             txt_file.write('\n')
 
-def one_hot_embedding(x, num_classes = -1):
-    num_classes = max(num_classes, int(torch.max(x)) + 1)
-
-    source_shape = list(x.shape)
-    target_shape = source_shape + [num_classes]
-
-    inputs = torch.zeros(x.numel(), num_classes, dtype = x.dtype, device = x.device)
-    result = torch.scatter(inputs, 1, x.view(-1, 1), 1).reshape(target_shape).float()
-
-    return result
-
 def grad_clipping(params, theta, device):
     norm = torch.tensor([0.0], device = device)
     for param in params:
@@ -65,8 +54,7 @@ def train(module, loader, criterion, optimizer, device, vocab_size, clipping_hol
         source, target = mini_batch
         source = source.to(device)
         target = target.to(device)
-        inputs = one_hot_embedding(source, vocab_size)
-        output = module(inputs)
+        output = module(source)
         epoch_loss = criterion(
             output[:, :-1].reshape(-1, output.shape[-1]),
             target[:, 1: ].reshape(-1)
@@ -92,8 +80,7 @@ def valid(module, loader, criterion, optimizer, device, vocab_size):
             source, target = mini_batch
             source = source.to(device)
             target = target.to(device)
-            inputs = one_hot_embedding(source, vocab_size)
-            output = module(inputs)
+            output = module(source)
             epoch_loss = criterion(
                 output[:, :-1].reshape(-1, output.shape[-1]),
                 target[:, 1: ].reshape(-1)
@@ -112,3 +99,11 @@ def valid(module, loader, criterion, optimizer, device, vocab_size):
         'true_wds': true_wds,
         'pred_wds': pred_wds
     }
+
+def predict(module, loader, prefix, seq_len):
+    inputs = loader.encode_text(prefix)
+    inputs = torch.tensor([inputs], dtype = torch.long)
+    output = module.predict(inputs, seq_len).squeeze(0)
+    ids = output.softmax(dim = -1).argmax(dim = 1).cpu().numpy()
+    wds = loader.decode_id(ids)
+    return ''.join(wds)

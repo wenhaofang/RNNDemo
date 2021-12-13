@@ -6,6 +6,7 @@ def get_parser():
     # For Basic
 
     parser.add_argument('--name', default = 'main', help = '')
+    parser.add_argument('--mode', default = 'train', choices = ['train', 'predict'], help = '')
 
     # For Loader
 
@@ -30,6 +31,12 @@ def get_parser():
 
     parser.add_argument('--learning_rate', type = float, default = 1e2, help = '')
     parser.add_argument('--clipping_hold', type = float, default = 1e-2, help = '')
+
+    # For Predict
+
+    parser.add_argument('--epoch', type = int, default = 0, help = '')
+
+    parser.add_argument('--prefix', default = '爱情', help = '')
 
     return parser
 

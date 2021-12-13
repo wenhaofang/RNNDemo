@@ -9,6 +9,17 @@ from modules.module1 import RNNCell
 from modules.module2 import LSTMCell
 from modules.module3 import GRUCell
 
+def one_hot_embedding(x, num_classes = -1):
+    num_classes = max(num_classes, int(torch.max(x)) + 1)
+
+    source_shape = list(x.shape)
+    target_shape = source_shape + [num_classes]
+
+    inputs = torch.zeros(x.numel(), num_classes, dtype = x.dtype, device = x.device)
+    result = torch.scatter(inputs, 1, x.view(-1, 1), 1).reshape(target_shape).float()
+
+    return result
+
 class Linear():
     def __init__(self, in_features, out_features):
 
@@ -94,7 +105,7 @@ class LanguageModel():
     def __call__(self, inputs, hidden = None):
         '''
         Params:
-            inputs: Torch LongTensor (batch_size, seq_len, emb_dim)
+            inputs: Torch LongTensor (batch_size, seq_len)
             hidden: Torch LongTensor (batch_size, hid_dim) if rnn_type == 'rnn' or rnn_type == 'gru'
                     (
                         Torch LongTensor (batch_size, hid_dim),
@@ -103,12 +114,37 @@ class LanguageModel():
         Return:
             outputs: Torch LongTensor (batch_size, seq_len, vocab_size)
         '''
+        inputs = one_hot_embedding(inputs, self.vocab_size)
         batch_size, seq_len = inputs.shape[0], inputs.shape[1]
         outputs = torch.zeros(batch_size, seq_len, self.vocab_size, device = inputs.device)
-        # todo: teacher forcing
         for t in range(seq_len):
             hidden = self.r_cell(inputs[:, t, :], hidden)
             output = self.linear(hidden if self.rnn_type == 'rnn' or self.rnn_type == 'gru' else hidden[0])
+            outputs[:, t, :] = output
+        return outputs
+
+    def predict(self, prefix, seq_len, hidden = None):
+        '''
+        Params:
+            prefix: Torch LongTensor (batch_size = 1, pre_len)
+            hidden: Torch LongTensor (batch_size = 1, hid_dim) if rnn_type == 'rnn' or rnn_type == 'gru'
+                    (
+                        Torch LongTensor (batch_size = 1, hid_dim),
+                        Torch LongTensor (batch_size = 1, hid_dim)
+                    ) if rnn_type == 'lstm'
+        Return:
+            outputs: Torch LongTensor (batch_size = 1, seq_len, vocab_size)
+        '''
+        prefix = one_hot_embedding(prefix, self.vocab_size)
+        batch_size, pre_len = prefix.shape[0], prefix.shape[1]
+        outputs = torch.zeros(batch_size, seq_len, self.vocab_size, device = prefix.device)
+        for t in range(pre_len - 1):
+            hidden = self.r_cell(prefix[:, t, :], hidden)
+        inputs = prefix[:, -1, :]
+        for t in range(seq_len):
+            hidden = self.r_cell(inputs, hidden)
+            output = self.linear(hidden if self.rnn_type == 'rnn' or self.rnn_type == 'gru' else hidden[0])
+            inputs = one_hot_embedding(output.softmax(dim = -1).argmax(dim = 1), self.vocab_size)
             outputs[:, t, :] = output
         return outputs
 
@@ -133,5 +169,5 @@ if __name__ == '__main__':
     batch_size = 128
     max_seq_len = 70
 
-    X = torch.randn(batch_size, max_seq_len, vocab_size)
-    Y = module(X) #(batch_size, max_seq_len, vocab_size)
+    X = torch.randint(0, vocab_size, (batch_size, max_seq_len)).long()
+    Y = module(X)  # (batch_size, max_seq_len, vocab_size)

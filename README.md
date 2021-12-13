@@ -48,8 +48,16 @@ PYTHONPATH=. python modules/module0.py --rnn_type gru
 
 ### Main Process
 
+You can change the config either in the command line or in the file `utils/parser.py`
+
+* for train
+
 ```shell
-PYTHONPATH=. python main.py
+PYTHONPATH=. python main.py --mode train
 ```
 
-You can change the config either in the command line or in the file `utils/parser.py`
+* for predict
+
+```shell
+PYTHONPATH=. python main.py --mode predict
+```
