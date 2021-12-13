@@ -6,6 +6,8 @@ import math
 import torch
 import torch.nn as nn
 
+import collections
+
 class LSTMCell():
     def __init__(self, input_size, hidden_size):
 
@@ -76,6 +78,28 @@ class LSTMCell():
             self.W_xo, self.W_ho, self.b_o,
             self.W_xc, self.W_hc, self.b_c
         ])
+
+    def named_parameters(self):
+        return nn.ParameterDict({
+            'W_xi': self.W_xi, 'W_hi': self.W_hi, 'b_i': self.b_i,
+            'W_xf': self.W_xf, 'W_hf': self.W_hf, 'b_f': self.b_f,
+            'W_xo': self.W_xo, 'W_ho': self.W_ho, 'b_o': self.b_o,
+            'W_xc': self.W_xc, 'W_hc': self.W_hc, 'b_c': self.b_c
+        })
+
+    def state_dict(self):
+        return collections.OrderedDict({
+            'W_xi': self.W_xi, 'W_hi': self.W_hi, 'b_i': self.b_i,
+            'W_xf': self.W_xf, 'W_hf': self.W_hf, 'b_f': self.b_f,
+            'W_xo': self.W_xo, 'W_ho': self.W_ho, 'b_o': self.b_o,
+            'W_xc': self.W_xc, 'W_hc': self.W_hc, 'b_c': self.b_c
+        })
+
+    def load_state_dict(self, state_dict):
+        self.W_xi, self.W_hi, self.b_i = state_dict['W_xi'], state_dict['W_hi'], state_dict['b_i']
+        self.W_xf, self.W_hf, self.b_f = state_dict['W_xf'], state_dict['W_hf'], state_dict['b_f']
+        self.W_xo, self.W_ho, self.b_o = state_dict['W_xo'], state_dict['W_ho'], state_dict['b_o']
+        self.W_xc, self.W_hc, self.b_c = state_dict['W_xc'], state_dict['W_hc'], state_dict['b_c']
 
 if __name__ == '__main__':
     emb_dim = 256

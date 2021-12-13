@@ -3,6 +3,8 @@ import math
 import torch
 import torch.nn as nn
 
+import collections
+
 from modules.module1 import RNNCell
 from modules.module2 import LSTMCell
 from modules.module3 import GRUCell
@@ -33,6 +35,19 @@ class Linear():
     def parameters(self):
         return nn.ParameterList([self.W, self.b])
 
+    def named_parameters(self):
+        return nn.ParameterDict({
+            'W': self.W, 'b': self.b
+        })
+
+    def state_dict(self):
+        return collections.OrderedDict({
+            'W': self.W, 'b': self.b
+        })
+
+    def load_state_dict(self, state_dict):
+        self.W, self.b = state_dict['W'], state_dict['b']
+
 class LanguageModel():
     def __init__(self, emb_dim, hid_dim, vocab_size, rnn_type):
 
@@ -57,6 +72,24 @@ class LanguageModel():
         result.extend(self.r_cell.parameters())
         result.extend(self.linear.parameters())
         return result
+
+    def named_parameters(self):
+        result = nn.ParameterDict()
+        for key, val in self.r_cell.named_parameters().items():
+            result.update({'r_cell.' + key: val})
+        for key, val in self.linear.named_parameters().items():
+            result.update({'linear.' + key: val})
+        return result
+
+    def state_dict(self):
+        result = collections.OrderedDict()
+        result.update({'r_cell': self.r_cell.state_dict()})
+        result.update({'linear': self.linear.state_dict()})
+        return result
+
+    def load_state_dict(self, state_dict):
+        self.r_cell.load_state_dict(state_dict['r_cell'])
+        self.linear.load_state_dict(state_dict['linear'])
 
     def __call__(self, inputs, hidden = None):
         '''

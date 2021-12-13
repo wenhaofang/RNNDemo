@@ -6,6 +6,8 @@ import math
 import torch
 import torch.nn as nn
 
+import collections
+
 class GRUCell():
     def __init__(self, input_size, hidden_size):
 
@@ -58,6 +60,25 @@ class GRUCell():
             self.W_xr, self.W_hr, self.b_r,
             self.W_xh, self.W_hh, self.b_h
         ])
+
+    def named_parameters(self):
+        return nn.ParameterDict({
+            'W_xz': self.W_xz, 'W_hz': self.W_hz, 'b_z': self.b_z,
+            'W_xr': self.W_xr, 'W_hr': self.W_hr, 'b_r': self.b_r,
+            'W_xh': self.W_xh, 'W_hh': self.W_hh, 'b_h': self.b_h
+        })
+
+    def state_dict(self):
+        return collections.OrderedDict({
+            'W_xz': self.W_xz, 'W_hz': self.W_hz, 'b_z': self.b_z,
+            'W_xr': self.W_xr, 'W_hr': self.W_hr, 'b_r': self.b_r,
+            'W_xh': self.W_xh, 'W_hh': self.W_hh, 'b_h': self.b_h
+        })
+
+    def load_state_dict(self, state_dict):
+        self.W_xz, self.W_hz, self.b_z = state_dict['W_xz'], state_dict['W_hz'], state_dict['b_z']
+        self.W_xr, self.W_hr, self.b_r = state_dict['W_xr'], state_dict['W_hr'], state_dict['b_r']
+        self.W_xh, self.W_hh, self.b_h = state_dict['W_xh'], state_dict['W_hh'], state_dict['b_h']
 
 if __name__ == '__main__':
     emb_dim = 256

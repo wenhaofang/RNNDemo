@@ -5,6 +5,8 @@ import math
 import torch
 import torch.nn as nn
 
+import collections
+
 class RNNCell():
     def __init__(self, input_size, hidden_size):
 
@@ -42,6 +44,19 @@ class RNNCell():
         return nn.ParameterList([
             self.W_xh, self.W_hh, self.b_h
         ])
+
+    def named_parameters(self):
+        return nn.ParameterDict({
+            'W_xh': self.W_xh, 'W_hh': self.W_hh, 'b_h': self.b_h
+        })
+
+    def state_dict(self):
+        return collections.OrderedDict({
+            'W_xh': self.W_xh, 'W_hh': self.W_hh, 'b_h': self.b_h
+        })
+
+    def load_state_dict(self, state_dict):
+        self.W_xh, self.W_hh, self.b_h = state_dict['W_xh'], state_dict['W_hh'], state_dict['b_h']
 
 if __name__ == '__main__':
     emb_dim = 256

@@ -2,11 +2,19 @@ import os
 import tqdm
 import torch
 
-def save_sample(folder, true_ids, pred_ids, true_wds, pred_wds):
-    true_ids_path = os.path.join(folder, 'true_ids.txt')
-    pred_ids_path = os.path.join(folder, 'pred_ids.txt')
-    true_wds_path = os.path.join(folder, 'true_wds.txt')
-    pred_wds_path = os.path.join(folder, 'pred_wds.txt')
+def save_module(save_path, module):
+    state_dict = module.state_dict()
+    torch.save(state_dict,save_path)
+
+def load_module(load_path, module):
+    state_dict = torch.load(load_path)
+    module.load_state_dict(state_dict)
+
+def save_sample(folder, file_prefix, true_ids, pred_ids, true_wds, pred_wds):
+    true_ids_path = os.path.join(folder, file_prefix + '_' + 'true_ids.txt')
+    pred_ids_path = os.path.join(folder, file_prefix + '_' + 'pred_ids.txt')
+    true_wds_path = os.path.join(folder, file_prefix + '_' + 'true_wds.txt')
+    pred_wds_path = os.path.join(folder, file_prefix + '_' + 'pred_wds.txt')
     with open(true_ids_path, 'w', encoding = 'utf-8') as txt_file:
         for row in true_ids:
             for item in row:

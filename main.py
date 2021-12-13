@@ -28,9 +28,11 @@ option = parser.parse_args()
 root_path = 'result'
 
 logs_folder = os.path.join(root_path, 'logs', option.name)
+save_folder = os.path.join(root_path, 'save', option.name)
 sample_folder = os.path.join(root_path, 'sample', option.name)
 
 subprocess.run('mkdir -p %s' % logs_folder, shell = True)
+subprocess.run('mkdir -p %s' % save_folder, shell = True)
 subprocess.run('mkdir -p %s' % sample_folder, shell = True)
 
 logger = get_logger(option.name, os.path.join(logs_folder, 'main.log '))
@@ -38,7 +40,7 @@ logger = get_logger(option.name, os.path.join(logs_folder, 'main.log '))
 from loaders.loader0 import get_loader
 from modules.module0 import get_module
 
-from utils.misc import train, valid, save_sample
+from utils.misc import train, valid, save_module, load_module, save_sample
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -66,9 +68,17 @@ for epoch in range(option.num_epochs):
         'epoch: %d, train_loss: %f, valid_loss: %f' %
         (epoch, train_info['loss'], valid_info['loss'])
     )
-    save_sample(sample_folder,
-        valid_info['true_ids'],
-        valid_info['pred_ids'],
-        valid_info['true_wds'],
-        valid_info['pred_wds']
-    )
+    if epoch % 10 == 0:
+        prefix = 'epoch' + str(epoch)
+        save_module(
+            os.path.join(save_folder, prefix + '.ckpt'),
+            module
+        )
+        save_sample(
+            sample_folder,
+            prefix,
+            valid_info['true_ids'],
+            valid_info['pred_ids'],
+            valid_info['true_wds'],
+            valid_info['pred_wds']
+        )
