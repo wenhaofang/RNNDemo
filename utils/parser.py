@@ -26,6 +26,10 @@ def get_parser():
     # For Train
 
     parser.add_argument('--batch_size', type = int, default = 128, help = '')
+    parser.add_argument('--num_epochs', type = int, default = 100, help = '')
+
+    parser.add_argument('--learning_rate', type = float, default = 1e2, help = '')
+    parser.add_argument('--clipping_hold', type = float, default = 1e-2, help = '')
 
     return parser
 

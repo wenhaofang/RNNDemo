@@ -45,3 +45,11 @@ PYTHONPATH=. python modules/module0.py --rnn_type lstm
 # module0: LanguageModel using GRUCell
 PYTHONPATH=. python modules/module0.py --rnn_type gru
 ```
+
+### Main Process
+
+```shell
+PYTHONPATH=. python main.py
+```
+
+You can change the config either in the command line or in the file `utils/parser.py`
