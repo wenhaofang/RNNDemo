@@ -1,5 +1,5 @@
-# LSTM [1997]
-# Long Short-Term Memory
+# LSTM
+# Long Short-Term Memory (1997)
 
 import math
 
@@ -68,6 +68,14 @@ class LSTMCell():
         H = O * C.tanh()
 
         return (H, C)
+
+    def parameters(self):
+        return nn.ParameterList([
+            self.W_xi, self.W_hi, self.b_i,
+            self.W_xf, self.W_hf, self.b_f,
+            self.W_xo, self.W_ho, self.b_o,
+            self.W_xc, self.W_hc, self.b_c
+        ])
 
 if __name__ == '__main__':
     emb_dim = 256

@@ -38,6 +38,11 @@ class RNNCell():
 
         return H
 
+    def parameters(self):
+        return nn.ParameterList([
+            self.W_xh, self.W_hh, self.b_h
+        ])
+
 if __name__ == '__main__':
     emb_dim = 256
     hid_dim = 512

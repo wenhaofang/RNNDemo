@@ -12,22 +12,29 @@ Datasets:
 
 Models
 
-* `model1`: RNN
-* `model2`: LSTM
-* `model3`: GRU
+* `model0`: LanguageModel
+    * `model1`: RNNCell
+    * `model2`: LSTMCell
+    * `model3`: GRUCell
 
 ### Unit Test
 
 * for module
 
 ```shell
-# module1:  RNNCell
+# module1: RNNCell
 PYTHONPATH=. python modules/module1.py
 # module2: LSTMCell
 PYTHONPATH=. python modules/module2.py
-# module3:  GRUCell
+# module3: GRUCell
 PYTHONPATH=. python modules/module3.py
+```
 
-# LanguageModel
-PYTHONPATH=. python modules/LanguageModel.py
+```shell
+# module0: LanguageModel using RNNCell
+PYTHONPATH=. python modules/module0.py --rnn_type rnn
+# module0: LanguageModel using LSTMCell
+PYTHONPATH=. python modules/module0.py --rnn_type lstm
+# module0: LanguageModel using GRUCell
+PYTHONPATH=. python modules/module0.py --rnn_type gru
 ```

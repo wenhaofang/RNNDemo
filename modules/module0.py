@@ -30,6 +30,9 @@ class Linear():
         Y = torch.matmul(X, self.W) + self.b
         return Y
 
+    def parameters(self):
+        return nn.ParameterList([self.W, self.b])
+
 class LanguageModel():
     def __init__(self, emb_dim, hid_dim, vocab_size, rnn_type):
 
@@ -49,6 +52,12 @@ class LanguageModel():
 
         self.linear = Linear(hid_dim, vocab_size)
 
+    def parameters(self):
+        result = nn.ParameterList()
+        result.extend(self.r_cell.parameters())
+        result.extend(self.linear.parameters())
+        return result
+
     def __call__(self, inputs, hidden = None):
         '''
         Params:
@@ -63,29 +72,33 @@ class LanguageModel():
         '''
         batch_size, seq_len = inputs.shape[0], inputs.shape[1]
         outputs = torch.zeros(batch_size, seq_len, self.vocab_size, device = inputs.device)
+        # todo: teacher forcing
         for t in range(seq_len):
             hidden = self.r_cell(inputs[:, t, :], hidden)
             output = self.linear(hidden if self.rnn_type == 'rnn' or self.rnn_type == 'gru' else hidden[0])
             outputs[:, t, :] = output
         return outputs
 
+def get_module(option, vocab_size):
+    return LanguageModel(
+        vocab_size, # option.emb_dim
+        option.hid_dim,
+        vocab_size,
+        option.rnn_type
+    )
+
 if __name__ == '__main__':
-    emb_dim = 256
-    hid_dim = 512
-    batch_size = 64
-    seq_len = 18
+    from utils.parser import get_parser
+
+    parser = get_parser()
+    option = parser.parse_args()
+
     vocab_size = 1000
 
-    module1 = LanguageModel(emb_dim, hid_dim, vocab_size, rnn_type = 'rnn' )
-    module2 = LanguageModel(emb_dim, hid_dim, vocab_size, rnn_type = 'lstm')
-    module3 = LanguageModel(emb_dim, hid_dim, vocab_size, rnn_type = 'rnn' )
+    module = get_module(option, vocab_size)
 
-    X = torch.randn(batch_size, seq_len, emb_dim)
+    batch_size = 128
+    max_seq_len = 70
 
-    Y1 = module1(X)
-    Y2 = module2(X)
-    Y3 = module3(X)
-
-    print(Y1.shape) # (batch_size, seq_len, vocab_size)
-    print(Y2.shape) # (batch_size, seq_len, vocab_size)
-    print(Y3.shape) # (batch_size, seq_len, vocab_size)
+    X = torch.randn(batch_size, max_seq_len, vocab_size)
+    Y = module(X) #(batch_size, max_seq_len, vocab_size)

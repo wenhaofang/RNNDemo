@@ -1,5 +1,5 @@
-# GRU [2014]
-# Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation
+# GRU
+# Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation (2014)
 
 import math
 
@@ -51,6 +51,13 @@ class GRUCell():
         H = Z * H + (1 - Z) * H_tilda
 
         return H
+
+    def parameters(self):
+        return nn.ParameterList([
+            self.W_xz, self.W_hz, self.b_z,
+            self.W_xr, self.W_hr, self.b_r,
+            self.W_xh, self.W_hh, self.b_h
+        ])
 
 if __name__ == '__main__':
     emb_dim = 256
