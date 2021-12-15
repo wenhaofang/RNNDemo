@@ -67,44 +67,44 @@ Here are the examples for each module:
 ```shell
 # rnn train
 PYTHONPATH=. python main.py \
-    --mode train
-    --name rnn
+    --mode train \
+    --name rnn \
     --rnn_type rnn
 # rnn predict
 PYTHONPATH=. python main.py \
-    --mode epoch
-    --name rnn
-    --rnn_type rnn
-    --epoch 250
+    --mode predict \
+    --name rnn \
+    --rnn_type rnn \
+    --epoch 250 \
     --prefix 离开
 ```
 
 ```shell
 # lstm train
 PYTHONPATH=. python main.py \
-    --mode train
-    --name lstm
+    --mode train \
+    --name lstm \
     --rnn_type lstm
 # lstm predict
 PYTHONPATH=. python main.py \
-    --mode epoch
-    --name lstm
-    --rnn_type lstm
-    --epoch 250
+    --mode predict \
+    --name lstm \
+    --rnn_type lstm \
+    --epoch 250 \
     --prefix 离开
 ```
 
 ```shell
 # gru train
 PYTHONPATH=. python main.py \
-    --mode train
-    --name gru
+    --mode train \
+    --name gru \
     --rnn_type gru
 # gru predict
 PYTHONPATH=. python main.py \
-    --mode epoch
-    --name gru
-    --rnn_type gru
-    --epoch 250
+    --mode predict \
+    --name gru \
+    --rnn_type gru \
+    --epoch 250 \
     --prefix 离开
 ```
