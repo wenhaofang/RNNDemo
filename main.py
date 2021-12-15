@@ -51,6 +51,7 @@ loader = get_loader(option)
 logger.info('prepare module')
 
 module = get_module(option, loader.get_vocab_size())
+module = module.to (device)
 
 logger.info('prepare envs')
 
@@ -64,6 +65,7 @@ if option.mode == 'train':
     logger.info('start train')
 
     for epoch in range(option.num_epochs):
+        epoch += 1
         train_info = train(module, loader, criterion, optimizer, device, vocab_size, option.clipping_hold)
         valid_info = valid(module, loader, criterion, optimizer, device, vocab_size)
         logger.info(
@@ -97,6 +99,6 @@ if option.mode == 'predict':
 
     logger.info('prefix: %s, seq_len: %d' % (option.prefix, option.max_seq_len))
 
-    result = predict(module, loader, option.prefix, option.max_seq_len)
+    result = predict(module, loader, device, option.prefix, option.max_seq_len)
 
     logger.info('result: %s' % result)

@@ -100,9 +100,9 @@ def valid(module, loader, criterion, optimizer, device, vocab_size):
         'pred_wds': pred_wds
     }
 
-def predict(module, loader, prefix, seq_len):
+def predict(module, loader, device, prefix, seq_len):
     inputs = loader.encode_text(prefix)
-    inputs = torch.tensor([inputs], dtype = torch.long)
+    inputs = torch.tensor([inputs], dtype = torch.long).to(device)
     output = module.predict(inputs, seq_len).squeeze(0)
     ids = output.softmax(dim = -1).argmax(dim = 1).cpu().numpy()
     wds = loader.decode_id(ids)

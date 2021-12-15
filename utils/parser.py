@@ -15,7 +15,7 @@ def get_parser():
     parser.add_argument('--min_freq', type = int, default = 1, help = '')
     parser.add_argument('--max_numb', type = int, default = 10000, help = '')
 
-    parser.add_argument('--max_seq_len', type = int, default = 70, help = '')
+    parser.add_argument('--max_seq_len', type = int, default = 35, help = '')
 
     # For Module
 
@@ -26,17 +26,17 @@ def get_parser():
 
     # For Train
 
-    parser.add_argument('--batch_size', type = int, default = 128, help = '')
-    parser.add_argument('--num_epochs', type = int, default = 100, help = '')
+    parser.add_argument('--batch_size', type = int, default = 32, help = '')
+    parser.add_argument('--num_epochs', type = int, default = 250, help = '')
 
-    parser.add_argument('--learning_rate', type = float, default = 1e2, help = '')
+    parser.add_argument('--learning_rate', type = float, default = 1e-3, help = '')
     parser.add_argument('--clipping_hold', type = float, default = 1e-2, help = '')
 
     # For Predict
 
-    parser.add_argument('--epoch', type = int, default = 0, help = '')
+    parser.add_argument('--epoch', type = int, default = 10, help = '')
 
-    parser.add_argument('--prefix', default = '爱情', help = '')
+    parser.add_argument('--prefix', default = '离开', help = '')
 
     return parser
 

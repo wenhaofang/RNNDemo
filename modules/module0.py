@@ -25,13 +25,18 @@ class Linear():
 
         k = 1 / in_features
 
-        self.W = self._uniform(in_features , out_features, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.b = self._uniform(out_features, min_value = -math.sqrt(k), max_value = math.sqrt(k))
+        self.W = self._convert(
+            self._uniform(in_features , out_features, min_value = -math.sqrt(k), max_value = math.sqrt(k))
+        )
+        self.b = self._convert(
+            self._uniform(out_features, min_value = -math.sqrt(k), max_value = math.sqrt(k))
+        )
 
     def _uniform(self, *size, min_value, max_value):
-        return nn.Parameter(
-            (max_value - min_value) * torch.rand(size) + min_value, requires_grad = True
-        )
+        return ((max_value - min_value)* torch.rand(size) + min_value)
+
+    def _convert(self, tensor):
+        return nn.Parameter(tensor, requires_grad = True)
 
     def __call__(self, X):
         '''
@@ -57,7 +62,15 @@ class Linear():
         })
 
     def load_state_dict(self, state_dict):
-        self.W, self.b = state_dict['W'], state_dict['b']
+        self.W, self.b = (
+            self._convert(state_dict['W']), self._convert(state_dict['b'])
+        )
+
+    def to(self, device):
+        self.W, self.b = (
+            self._convert(self.W.to(device)), self._convert(self.b.to(device))
+        )
+        return self
 
 class LanguageModel():
     def __init__(self, emb_dim, hid_dim, vocab_size, rnn_type):
@@ -101,6 +114,11 @@ class LanguageModel():
     def load_state_dict(self, state_dict):
         self.r_cell.load_state_dict(state_dict['r_cell'])
         self.linear.load_state_dict(state_dict['linear'])
+
+    def to(self, device):
+        self.r_cell = self.r_cell.to(device)
+        self.linear = self.linear.to(device)
+        return self
 
     def __call__(self, inputs, hidden = None):
         '''
@@ -164,10 +182,19 @@ if __name__ == '__main__':
 
     vocab_size = 1000
 
-    module = get_module(option, vocab_size)
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+    module = get_module(option, vocab_size).to(device)
+
+    def count_parameters(model):
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    para_num = count_parameters(module)
+    print(f'The module has {para_num} trainable parameters')
 
     batch_size = 128
     max_seq_len = 70
 
-    X = torch.randint(0, vocab_size, (batch_size, max_seq_len)).long()
-    Y = module(X)  # (batch_size, max_seq_len, vocab_size)
+    X = torch.randint(0, vocab_size, (batch_size, max_seq_len)).long().to(device)
+    Y = module(X)
+    print(Y.shape) # (batch_size, max_seq_len, vocab_size)

@@ -16,30 +16,29 @@ class LSTMCell():
 
         k = 1 / hidden_size
 
-        # input gate
-        self.W_xi = self._uniform(input_size , hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.W_hi = self._uniform(hidden_size, hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.b_i  = self._uniform(hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
+        self.W_xi, self.W_hi, self.b_i = self._init_param_group(input_size, hidden_size, k) # input gate
+        self.W_xf, self.W_hf, self.b_f = self._init_param_group(input_size, hidden_size, k) # forget gate
+        self.W_xo, self.W_ho, self.b_o = self._init_param_group(input_size, hidden_size, k) # output gate
+        self.W_xc, self.W_hc, self.b_c = self._init_param_group(input_size, hidden_size, k) # cell
 
-        # forget gate
-        self.W_xf = self._uniform(input_size , hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.W_hf = self._uniform(hidden_size, hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.b_f  = self._uniform(hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-
-        # output gate
-        self.W_xo = self._uniform(input_size , hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.W_ho = self._uniform(hidden_size, hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.b_o  = self._uniform(hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-
-        # cell
-        self.W_xc = self._uniform(input_size , hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.W_hc = self._uniform(hidden_size, hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
-        self.b_c  = self._uniform(hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
+    def _init_param_group(self, input_size, hidden_size, k):
+        return (
+            self._convert(
+                self._uniform(input_size , hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
+            ),
+            self._convert(
+                self._uniform(hidden_size, hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
+            ),
+            self._convert(
+                self._uniform(hidden_size, min_value = -math.sqrt(k), max_value = math.sqrt(k))
+            )
+        )
 
     def _uniform(self, *size, min_value, max_value):
-        return nn.Parameter(
-            (max_value - min_value) * torch.rand(size) + min_value, requires_grad = True
-        )
+        return ((max_value - min_value)* torch.rand(size) + min_value)
+
+    def _convert(self, tensor):
+        return nn.Parameter(tensor, requires_grad = True)
 
     def __call__(self, X, T = None):
         '''
@@ -96,21 +95,52 @@ class LSTMCell():
         })
 
     def load_state_dict(self, state_dict):
-        self.W_xi, self.W_hi, self.b_i = state_dict['W_xi'], state_dict['W_hi'], state_dict['b_i']
-        self.W_xf, self.W_hf, self.b_f = state_dict['W_xf'], state_dict['W_hf'], state_dict['b_f']
-        self.W_xo, self.W_ho, self.b_o = state_dict['W_xo'], state_dict['W_ho'], state_dict['b_o']
-        self.W_xc, self.W_hc, self.b_c = state_dict['W_xc'], state_dict['W_hc'], state_dict['b_c']
+        self.W_xi, self.W_hi, self.b_i = (
+            self._convert(state_dict['W_xi']), self._convert(state_dict['W_hi']), self._convert(state_dict['b_i'])
+        )
+        self.W_xf, self.W_hf, self.b_f = (
+            self._convert(state_dict['W_xf']), self._convert(state_dict['W_hf']), self._convert(state_dict['b_f'])
+        )
+        self.W_xo, self.W_ho, self.b_o = (
+            self._convert(state_dict['W_xo']), self._convert(state_dict['W_ho']), self._convert(state_dict['b_o'])
+        )
+        self.W_xc, self.W_hc, self.b_c = (
+            self._convert(state_dict['W_xc']), self._convert(state_dict['W_hc']), self._convert(state_dict['b_c'])
+        )
+
+    def to(self, device):
+        self.W_xi, self.W_hi, self.b_i = (
+            self._convert(self.W_xi.to(device)), self._convert(self.W_hi.to(device)), self._convert(self.b_i.to(device))
+        )
+        self.W_xf, self.W_hf, self.b_f = (
+            self._convert(self.W_xf.to(device)), self._convert(self.W_hf.to(device)), self._convert(self.b_f.to(device))
+        )
+        self.W_xo, self.W_ho, self.b_o = (
+            self._convert(self.W_xo.to(device)), self._convert(self.W_ho.to(device)), self._convert(self.b_o.to(device))
+        )
+        self.W_xc, self.W_hc, self.b_c = (
+            self._convert(self.W_xc.to(device)), self._convert(self.W_hc.to(device)), self._convert(self.b_c.to(device))
+        )
+        return self
 
 if __name__ == '__main__':
     emb_dim = 256
     hid_dim = 512
     batch_size = 64
 
-    module = LSTMCell(emb_dim, hid_dim)
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    X = torch.randn(batch_size, emb_dim)
-    H = torch.zeros(batch_size, hid_dim)
-    C = torch.zeros(batch_size, hid_dim)
+    module = LSTMCell(emb_dim, hid_dim).to(device)
+
+    def count_parameters(model):
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    para_num = count_parameters(module)
+    print(f'The module has {para_num} trainable parameters')
+
+    X = torch.randn(batch_size, emb_dim).to(device)
+    H = torch.zeros(batch_size, hid_dim).to(device)
+    C = torch.zeros(batch_size, hid_dim).to(device)
 
     Y = module(X)
     print(Y[0].shape) # (batch_size, hid_dim)

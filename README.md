@@ -48,8 +48,6 @@ PYTHONPATH=. python modules/module0.py --rnn_type gru
 
 ### Main Process
 
-You can change the config either in the command line or in the file `utils/parser.py`
-
 * for train
 
 ```shell
@@ -60,4 +58,53 @@ PYTHONPATH=. python main.py --mode train
 
 ```shell
 PYTHONPATH=. python main.py --mode predict
+```
+
+You can change the config either in the command line or in the file `utils/parser.py`
+
+Here are the examples for each module:
+
+```shell
+# rnn train
+PYTHONPATH=. python main.py \
+    --mode train
+    --name rnn
+    --rnn_type rnn
+# rnn predict
+PYTHONPATH=. python main.py \
+    --mode epoch
+    --name rnn
+    --rnn_type rnn
+    --epoch 250
+    --prefix 离开
+```
+
+```shell
+# lstm train
+PYTHONPATH=. python main.py \
+    --mode train
+    --name lstm
+    --rnn_type lstm
+# lstm predict
+PYTHONPATH=. python main.py \
+    --mode epoch
+    --name lstm
+    --rnn_type lstm
+    --epoch 250
+    --prefix 离开
+```
+
+```shell
+# gru train
+PYTHONPATH=. python main.py \
+    --mode train
+    --name gru
+    --rnn_type gru
+# gru predict
+PYTHONPATH=. python main.py \
+    --mode epoch
+    --name gru
+    --rnn_type gru
+    --epoch 250
+    --prefix 离开
 ```
