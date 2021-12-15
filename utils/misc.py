@@ -89,7 +89,7 @@ def valid(module, loader, criterion, optimizer, device, vocab_size):
             true_ids.append(target)
             pred_ids.append(output)
     true_ids = torch.cat(true_ids).cpu().numpy()
-    pred_ids = torch.cat(pred_ids).softmax(dim = -1).argmax(dim = 1).cpu().numpy()
+    pred_ids = torch.cat(pred_ids).softmax(dim = -1).argmax(dim = -1).cpu().numpy()
     true_wds = [loader.decode_id(row) for row in true_ids]
     pred_wds = [loader.decode_id(row) for row in pred_ids]
     return {
@@ -104,6 +104,6 @@ def predict(module, loader, device, prefix, seq_len):
     inputs = loader.encode_text(prefix)
     inputs = torch.tensor([inputs], dtype = torch.long).to(device)
     output = module.predict(inputs, seq_len).squeeze(0)
-    ids = output.softmax(dim = -1).argmax(dim = 1).cpu().numpy()
+    ids = output.softmax(dim = -1).argmax(dim = -1).cpu().numpy()
     wds = loader.decode_id(ids)
     return ''.join(wds)
