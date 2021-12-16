@@ -108,3 +108,5 @@ PYTHONPATH=. python main.py \
     --epoch 250 \
     --prefix 离开
 ```
+
+Note: You can replace the data files in the `data` directory to train the model you want.
